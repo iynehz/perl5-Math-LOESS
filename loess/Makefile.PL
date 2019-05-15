@@ -5,7 +5,7 @@ my @C      = ( glob("*.c"), glob("*.f") );
 my $object = join(" ", map { s/\.(c|f)$/\$(OBJ_EXT)/; $_ } @C);
 
 my $ccflags = '-I. -I./loess -D_LARGEFILE64_SOURCE';
-my $libs    = [ join(' ', '-lm', '-lblas', ExtUtils::F77->runtime) ];
+my $libs    = [ join(' ', '-lm', ExtUtils::F77->runtime) ];
 
 WriteMakefile(
     NAME    => 'Math::LOESS::_swig',
