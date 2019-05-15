@@ -1,0 +1,17 @@
+language: perl
+addons:
+  apt:
+    packages:
+      - swig
+perl:
+  - "5.28"
+  - "5.26"
+  - "5.20"
+  - "5.16"
+  - "5.10"
+sudo: false
+env:
+  - PERL_USE_UNSAFE_INC=1
+before_install:
+  - eval $(curl https://travis-perl.github.io/init) --auto
+
