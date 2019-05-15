@@ -98,7 +98,16 @@ loess_inputs_setup(double *x, double *y, double *w, long n,
 
     for(i = 0; i < n; i++) {
         inputs->y[i] = y[i];
-        inputs->weights[i] = w[i];
+    }
+
+    if (w == NULL) {
+        for(i = 0; i < n; i++) {
+            inputs->weights[i] = 1.0;
+        }
+    } else {
+        for(i = 0; i < n; i++) {
+            inputs->weights[i] = w[i];
+        }
     }
 
     inputs->n = n;

@@ -101,10 +101,16 @@ sub BUILD {
         $w = ones($n);
     }
 
-    my ( $x1, $y1, $w1 ) =
-      map { Math::LOESS::_swig::pdl_to_darray( $_, $_->dim(0) ); }
-      ( $x, $y, $w );
+    my $x1 = Math::LOESS::_swig::pdl_to_darray( $x, $n * $p );
+    my $y1 = Math::LOESS::_swig::pdl_to_darray( $y, $n );
+    my $w1 = defined $w ? Math::LOESS::_swig::pdl_to_darray( $w, $n ) : undef;
     Math::LOESS::_swig::loess_setup( $x1, $y1, $w1, $n, $p, $self->_obj );
+
+    # free memory
+    map { Math::LOESS::_swig::delete_doubleArray($_) }
+      ( $x1, $y1, defined $w1 ? $w1 : () );
+
+    return;
 }
 
 sub DEMOLISH {
