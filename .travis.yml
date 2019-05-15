@@ -3,6 +3,7 @@ addons:
   apt:
     packages:
       - swig
+      - gfortran
 perl:
   - "5.28"
   - "5.26"
