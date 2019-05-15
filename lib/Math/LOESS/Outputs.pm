@@ -9,20 +9,6 @@ use Moo;
 
 use Math::LOESS::_swig;
 
-=head1 ATTRIBUTES
-
-=head2 n
-
-=head2 p
-
-=head2 family
-
-=head2 activated
-
-=head2 _obj
-
-=cut
-
 has [qw(n p)] => ( is => 'ro', required => 1 );
 has family    => ( is => 'ro', required => 1 );
 has _obj      => ( is => 'ro', required => 1 );
@@ -32,20 +18,6 @@ sub DEMOLISH {
     my ($self) = @_;
     Math::LOESS::_swig::loess_outputs_free( $self->_obj );
 }
-
-=head1 METHODS
-
-=head2 fitted_values
-
-=head2 fitted_residuals
-
-=head2 diagnal
-
-=head2 robust
-
-=head2 divisor
-
-=cut
 
 for my $attr (
     qw(
@@ -78,4 +50,36 @@ for my $attr (
 1;
 
 __END__
+
+=head1 DESCRIPTION
+
+You normally don't need to construct object of this class yourself.
+Instead you get the object from an L<Math::LOESS> object after its C<fit()>
+method is called. 
+
+=head1 ATTRIBUTES
+
+=head2 n
+
+=head2 p
+
+=head2 family
+
+=head2 activated
+
+A true value indicates data in the object is valid.
+
+=head2 fitted_values
+
+=head2 fitted_residuals
+
+=head2 diagnal
+
+=head2 robust
+
+=head2 divisor
+
+=head1 SEE ALSO
+
+L<Math::LOESS>
 

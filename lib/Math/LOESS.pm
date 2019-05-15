@@ -8,22 +8,6 @@ use warnings;
 
 # VERSION
 
-=head1 NAME
-
-Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally written by Cleveland, et al.
-
-=head1 SYNOPSIS
-
-    use Math::LOESS;
-
-    my $loess = Math::LOESS->new(x => $x_piddle, y => $y_piddle);
-
-    $loess->fit();
-    my $fitted_values = $loess->outputs->fitted_values;
-
-=cut
-
-
 use Moo;
 
 use PDL::Core qw(ones);
@@ -45,23 +29,15 @@ has _obj => (
     },
 );
 
-=head1 ATTRIBUTES
-
-=head2 model
-
-=head2 outputs
-
-=cut
-
 has outputs => (
     is      => 'lazy',
     builder => sub {
         my ($self) = @_;
         return Math::LOESS::Outputs->new(
+            _obj   => $self->_obj->{outputs},
             n      => $self->_inputs_n,
             p      => $self->_inputs_p,
-            _obj   => $self->_obj->{outputs},
-            family => 'gaussian'
+            family => $self->model->family,
         );
     }
 );
@@ -120,16 +96,6 @@ sub DEMOLISH {
     #Math::LOESS::_swig::loess_free_mem( $self->_obj );
 }
 
-=head1 METHODS
-
-=head2 x
-
-=head2 y
-
-=head2 weights
-
-=cut
-
 sub _inputs_n { $_[0]->_obj->{inputs}{n} }
 sub _inputs_p { $_[0]->_obj->{inputs}{p} }
 
@@ -172,7 +138,50 @@ sub fit {
 
 __END__
 
+=head1 NAME
+
+Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally written by Cleveland, et al.
+
+=head1 SYNOPSIS
+
+    use Math::LOESS;
+
+    my $loess = Math::LOESS->new(x => $x_piddle, y => $y_piddle);
+
+    $loess->fit();
+    my $fitted_values = $loess->outputs->fitted_values;
+
+=head1 ATTRIBUTES
+
+=head2 model
+
+Get an L<Math::LOESS::Model> object.
+
+=head2 outputs
+
+Get an L<Math::LOESS::Outputs> object.
+
+=head2 x
+
+Get input x data as a piddle.
+
+=head2 y
+
+Get input y data as a piddle.
+
+=head2 weights
+
+Get input weights data as a piddle.
+
+=head1 METHODS
+
+=head2 fit
+
+    fit()
+
 =head1 SEE ALSO
+
+L<https://en.wikipedia.org/wiki/Local_regression>
 
 L<PDL>
 

@@ -20,16 +20,34 @@ my $fitted_values = $loess->outputs->fitted_values;
 
 ## model
 
+Get an [Math::LOESS::Model](https://metacpan.org/pod/Math::LOESS::Model) object.
+
 ## outputs
 
-# METHODS
+Get an [Math::LOESS::Outputs](https://metacpan.org/pod/Math::LOESS::Outputs) object.
 
 ## x
 
+Get input x data as a piddle.
+
 ## y
+
+Get input y data as a piddle.
 
 ## weights
 
+Get input weights data as a piddle.
+
+# METHODS
+
+## fit
+
+```
+fit()
+```
+
 # SEE ALSO
+
+[https://en.wikipedia.org/wiki/Local\_regression](https://en.wikipedia.org/wiki/Local_regression)
 
 [PDL](https://metacpan.org/pod/PDL)
