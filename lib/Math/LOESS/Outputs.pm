@@ -34,9 +34,19 @@ for my $attr (
     };
 }
 
+sub pseudovalues {
+    my ($self) = @_;
+    if ( $self->family ne 'symmetric' ) {
+        die "pseudovalues are available only when robust fitting. "
+          . "Use family='symmetric' for robust fitting";
+    }
+    return Math::LOESS::_swig::darray_to_pdl( $self->_obj->{pseudovalues},
+        $self->n );
+}
+
 for my $attr (
     qw(
-    residual_scale one_delta two_delta trace_hat
+    enp residual_scale one_delta two_delta trace_hat
     )
   )
 {
@@ -71,13 +81,47 @@ A true value indicates data in the object is valid.
 
 =head2 fitted_values
 
+Fitted values.
+
 =head2 fitted_residuals
+
+Fitted residuals.
+
+=head2 pseudovalues
+
+Adjusted values of the response when robust estimation is used.
 
 =head2 diagnal
 
+Diagonal of the operator hat matrix.
+
 =head2 robust
 
+Robustness weights for robust fitting.
+
 =head2 divisor
+
+Normalization divisors for numeric predictors.
+
+=head2 enp
+
+Equivalent number of parameters.
+
+=head2 residual_scale
+
+Estimate of the scale of residuals.
+
+=head2 one_delta
+
+Statistical parameter used in the computation of standard errors.
+
+=head2 two_delta
+
+Statistical parameter used in the computation of standard errors.
+
+=head2 trace_hat
+
+Trace of the operator hat matrix.
 
 =head1 SEE ALSO
 

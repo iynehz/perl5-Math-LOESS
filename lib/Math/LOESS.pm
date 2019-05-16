@@ -14,8 +14,9 @@ use PDL::Core qw(ones);
 use PDL::Lite;
 use Math::LOESS::_swig;
 
-use Math::LOESS::Outputs;
 use Math::LOESS::Model;
+use Math::LOESS::Outputs;
+use Math::LOESS::Prediction;
 
 has _obj => (
     is      => 'ro',
@@ -132,6 +133,21 @@ sub fit {
     $self->_check_error;
     $self->outputs->activated(1);
     return;
+}
+
+sub predict {
+    my ($self, $newdata, $stderr) = @_;
+
+    my $pred = Math::LOESS::_swig::prediction->new();
+    $pred->{m} = $newdata->dim(0);
+    $pred->{se} = $stderr ? 1 : 0; 
+
+    my $d = Math::LOESS::_swig::pdl_to_darray($newdata);
+    Math::LOESS::_swig::predict( $d, $self->_obj, $pred );
+
+    Math::LOESS::_swig::delete_doubleArray($d);
+
+    return Math::LOESS::Prediction->new( _obj => $pred );
 }
 
 1;

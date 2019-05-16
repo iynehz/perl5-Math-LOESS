@@ -37,6 +37,21 @@ my $gas_null = pdl(
     2.604373, 4.445040, 4.351615, 1.051719
 );
 
+my $gas_fit_E = pdl(0.665, 0.949, 1.224);
+my $newdata = pdl(
+    0.6650000, 0.7581667, 0.8513333, 0.9445000,
+    1.0376667, 1.1308333, 1.2240000
+);
+
+my $predict_values = pdl(1.196414, 5.068747, 0.523682);
+my $pointwise = pdl(
+    0.407208,  1.196414, 1.985621, 3.249187, 3.679498, 4.109808,
+    4.631187,  5.055708, 5.480229, 4.704010, 5.135260, 5.566510,
+    2.759703,  3.143656, 3.527609, 0.683247, 1.196932, 1.710617,
+    -0.424684, 0.523682, 1.472049
+);
+my $anova = pdl( 2.5531, 15.663, 10.1397, 0.000860102 );
+
 subtest gas => sub {
     my $loess = Math::LOESS->new( x => $E, y => $NOx );
     ok( $loess, 'Math::LOESS->new()' );
@@ -47,7 +62,22 @@ subtest gas => sub {
     cmp_ok( $loess->model->span, '==', 2 / 3, 'model->span' );
 
     $loess->fit();
+
     pdl_is( $loess->outputs->fitted_values, $gas, 'outputs->fitted_values' );
+
+    my $pred1 = $loess->predict($gas_fit_E);
+    pdl_is( $pred1->values, $predict_values, 'predict(stderr=false)' );
+
+    my $pred2 = $loess->predict( $newdata, 1 );
+    my $ci = $pred2->confidence(0.01);
+    pdl_is( $pred2->values, $pointwise->slice( pdl( 0 .. 6 ) * 3 + 1 ),
+        'predict(stderr=true)' );
+
+    pdl_is( $ci->{lower}, $pointwise->slice( pdl( 0 .. 6 ) * 3 ),
+        '$ci->{lower}' );
+    pdl_is( $ci->{fit}, $pred2->values, '$ci->{fit}' );
+    pdl_is( $ci->{upper}, $pointwise->slice( pdl( 0 .. 6 ) * 3 + 2 ),
+        '$ci->{upper}' );
 };
 
 subtest gas_null => sub {
