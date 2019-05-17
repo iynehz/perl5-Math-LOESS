@@ -1,6 +1,7 @@
 package Math::LOESS::Prediction;
 
-use 5.014;
+use 5.010;
+use strict;
 use warnings;
 
 # VERSION
