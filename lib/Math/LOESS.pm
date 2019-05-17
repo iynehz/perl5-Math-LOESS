@@ -8,67 +8,35 @@ use warnings;
 
 # VERSION
 
-use Moo;
-
 use PDL::Core qw(ones);
 use PDL::Lite;
 use Math::LOESS::_swig;
+use Type::Params qw(compile_named);
+use Types::Standard qw(Optional);
+use Types::PDL qw(Piddle1D);
 
 use Math::LOESS::Model;
 use Math::LOESS::Outputs;
 use Math::LOESS::Prediction;
 
-has _obj => (
-    is      => 'ro',
-    builder => sub {
-        my $loess = Math::LOESS::_swig::loess->new();
-        for my $param (qw(inputs model control kd_tree outputs)) {
-            my $class = "Math::LOESS::_swig::loess_${param}";
-            $loess->{$param} = $class->new();
-        }
-        return $loess;
-    },
-);
+sub new {
+    my $class = shift;
+    state $check = compile_named(
+        x       => Piddle1D,
+        y       => Piddle1D,
+        weights => Optional [Piddle1D]
+    );
 
-has outputs => (
-    is      => 'lazy',
-    builder => sub {
-        my ($self) = @_;
-        return Math::LOESS::Outputs->new(
-            _obj   => $self->_obj->{outputs},
-            n      => $self->_inputs_n,
-            p      => $self->_inputs_p,
-            family => $self->model->family,
-        );
-    }
-);
+    my $arg = $check->(@_);
 
-has model => (
-    is      => 'lazy',
-    builder => sub {
-        my ($self) = @_;
-        return Math::LOESS::Model->new( _obj => $self->_obj->{model} );
-    }
-);
-
-sub BUILD {
-    my ( $self, $args ) = @_;
-
-    my ( $x, $y ) = map {
-        my $p = delete $args->{$_};
-        unless ( defined $p ) {
-            die "$_ is required";
-        }
-        $p;
-    } qw(x y);
-
+    my ( $x, $y ) = map { $arg->{$_} } qw(x y);
     my $n = $y->dim(0);
     my $p = $x->dim(0) / $y->dim(0);
     unless ( int($p) == $p ) {
         die "x's length must be same as, or integral times as, that of y";
     }
 
-    my $w = delete $args->{weights};
+    my $w = $arg->{weights};
     if ( defined $w ) {
         unless ( $w->dim(0) == $n ) {
             die "weights's length must be same as that of y";
@@ -81,20 +49,40 @@ sub BUILD {
     my $x1 = Math::LOESS::_swig::pdl_to_darray( $x, $n * $p );
     my $y1 = Math::LOESS::_swig::pdl_to_darray( $y, $n );
     my $w1 = defined $w ? Math::LOESS::_swig::pdl_to_darray( $w, $n ) : undef;
+
+    my $loess = Math::LOESS::_swig::loess->new();
+    for my $param (qw(inputs model control kd_tree outputs)) {
+        my $class = "Math::LOESS::_swig::loess_${param}";
+        $loess->{$param} = $class->new();
+    }
+    
+    my $self = bless( { %$arg, _obj => $loess }, $class );
+
     Math::LOESS::_swig::loess_setup( $x1, $y1, $w1, $n, $p, $self->_obj );
 
     # free memory
     map { Math::LOESS::_swig::delete_doubleArray($_) }
       ( $x1, $y1, defined $w1 ? $w1 : () );
 
-    return;
+    $self->{model} = Math::LOESS::Model->new( _obj => $self->_obj->{model} );
+    $self->{outputs} = Math::LOESS::Outputs->new(
+        _obj   => $self->_obj->{outputs},
+        n      => $self->_inputs_n,
+        p      => $self->_inputs_p,
+        family => $self->model->family,
+    );
+
+    return $self;
 }
 
-sub DEMOLISH {
+sub DESTROY {
     my ($self) = @_;
     Math::LOESS::_swig::loess_inputs_free( $self->_obj->{inputs} );
+}
 
-    #Math::LOESS::_swig::loess_free_mem( $self->_obj );
+for my $attr (qw(_obj model outputs)) {
+    no strict 'refs';
+    *{$attr} = sub { $_[0]->{$attr} };
 }
 
 sub _inputs_n { $_[0]->_obj->{inputs}{n} }

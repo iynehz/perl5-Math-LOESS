@@ -6,13 +6,19 @@ use warnings;
 
 # VERSION
 
-use Moo;
-
 use Math::LOESS::_swig;
-use Type::Params;
-use Types::Standard qw(Enum);
+use Type::Params qw(compile_named);
+use Types::Standard qw(Enum Object);
 
-has _obj => (is => 'ro');
+sub new {
+    my $class = shift;
+    state $check = compile_named( _obj => Object );
+
+    my $arg = $check->(@_);
+    return bless( $arg, $class );
+}
+
+sub _obj { $_[0]->{_obj} };
 
 for my $attr (qw(span degree normalize)) {
     no strict 'refs';

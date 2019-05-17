@@ -1,22 +1,44 @@
 package Math::LOESS::Outputs;
 
+use 5.010;
 use strict;
 use warnings;
 
 # VERSION
 
-use Moo;
-
 use Math::LOESS::_swig;
+use Type::Params qw(compile_named);
+use Types::Standard qw(Int Object Str);
 
-has [qw(n p)] => ( is => 'ro', required => 1 );
-has family    => ( is => 'ro', required => 1 );
-has _obj      => ( is => 'ro', required => 1 );
-has activated => ( is => 'rw', default  => 0 );
+sub new {
+    my $class = shift;
+    state $check = compile_named(
+        _obj   => Object,
+        family => Str,
+        n      => Int,
+        p      => Int,
+    );
 
-sub DEMOLISH {
+    my $arg = $check->(@_);
+    return bless( { %$arg, activated => 0 }, $class );
+}
+
+sub DESTROY {
     my ($self) = @_;
     Math::LOESS::_swig::loess_outputs_free( $self->_obj );
+}
+
+for my $attr (qw(n p family _obj)) {
+    no strict 'refs';
+    *{$attr} = sub { $_[0]->{$attr} };
+}
+
+sub activated {
+    my ($self, $value) = @_;
+    if (defined $value) {
+        $self->{activated} = $value;
+    }
+    return $self->{activated};
 }
 
 for my $attr (

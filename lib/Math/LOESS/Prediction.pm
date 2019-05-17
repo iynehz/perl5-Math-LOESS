@@ -6,16 +6,24 @@ use warnings;
 
 # VERSION
 
-use Moo;
-
 use Math::LOESS::_swig;
+use Type::Params qw(compile_named);
+use Types::Standard qw(Object);
 
-has _obj => (is => 'ro');
+sub new {
+    my $class = shift;
+    state $check = compile_named( _obj => Object );
 
-sub DEMOLISH {
+    my $arg = $check->(@_);
+    return bless( $arg, $class );
+}
+
+sub DESTROY {
     my ($self) = @_;
     Math::LOESS::_swig::pred_free_mem( $self->_obj );
 }
+
+sub _obj { $_[0]->{_obj} };
 
 sub values {
     my ($self) = @_;
