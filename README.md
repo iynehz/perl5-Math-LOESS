@@ -10,10 +10,23 @@ Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally
 ```perl
 use Math::LOESS;
 
-my $loess = Math::LOESS->new(x => $x_piddle, y => $y_piddle);
+my $loess = Math::LOESS->new(x => $x, y => $y);
 
 $loess->fit();
 my $fitted_values = $loess->outputs->fitted_values;
+
+my $prediction = $loess->predict($new_data, 1);
+my $confidence_intervals = $prediction->confidence(0.05);
+print $confidence_internals->{fit};
+print $confidence_internals->{upper};
+print $confidence_internals->{lower};
+```
+
+# CONSTRUCTION
+
+```
+new(Piddle1D :$x, Piddle1D :$y, Piddle1D :$weights=undef,
+    Num :$span=0.75)
 ```
 
 # ATTRIBUTES
@@ -38,6 +51,10 @@ Get input y data as a piddle.
 
 Get input weights data as a piddle.
 
+## activated
+
+Returns a true value if the object's `fit()` method has been called.
+
 # METHODS
 
 ## fit
@@ -45,6 +62,14 @@ Get input weights data as a piddle.
 ```
 fit()
 ```
+
+## predict
+
+```
+predict(Piddle1D $newdata, Bool $stderr=false)
+```
+
+Returns a [Math:LOESS::Prediction](Math:LOESS::Prediction) object.
 
 # SEE ALSO
 

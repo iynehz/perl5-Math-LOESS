@@ -11,8 +11,8 @@ use warnings;
 use PDL::Core qw(ones);
 use PDL::Lite;
 use Math::LOESS::_swig;
-use Type::Params qw(compile_named);
-use Types::Standard qw(Optional);
+use Type::Params qw(compile compile_named);
+use Types::Standard qw(Any Num Object Optional);
 use Types::PDL qw(Piddle1D);
 
 use Math::LOESS::Model;
@@ -24,12 +24,14 @@ sub new {
     state $check = compile_named(
         x       => Piddle1D,
         y       => Piddle1D,
-        weights => Optional [Piddle1D]
+        weights => Optional [Piddle1D],
+        span    => Optional [ Num->where( sub { $_ > 0 and $_ < 1 } ) ],
+                   { default => 0.75 },
     );
 
     my $arg = $check->(@_);
 
-    my ( $x, $y ) = map { $arg->{$_} } qw(x y);
+    my ( $x, $y, $span ) = map { $arg->{$_} } qw(x y span);
     my $n = $y->dim(0);
     my $p = $x->dim(0) / $y->dim(0);
     unless ( int($p) == $p ) {
@@ -56,7 +58,14 @@ sub new {
         $loess->{$param} = $class->new();
     }
     
-    my $self = bless( { %$arg, _obj => $loess }, $class );
+    my $self = bless(
+        {
+            %$arg,
+            _obj      => $loess,
+            activated => 0
+        },
+        $class
+    );
 
     Math::LOESS::_swig::loess_setup( $x1, $y1, $w1, $n, $p, $self->_obj );
 
@@ -72,6 +81,10 @@ sub new {
         family => $self->model->family,
     );
 
+    if (defined $span) {
+        $self->model->span($span);
+    }
+
     return $self;
 }
 
@@ -80,7 +93,7 @@ sub DESTROY {
     Math::LOESS::_swig::loess_inputs_free( $self->_obj->{inputs} );
 }
 
-for my $attr (qw(_obj model outputs)) {
+for my $attr (qw(_obj activated model outputs)) {
     no strict 'refs';
     *{$attr} = sub { $_[0]->{$attr} };
 }
@@ -119,12 +132,17 @@ sub fit {
 
     Math::LOESS::_swig::loess_fit( $self->_obj );
     $self->_check_error;
-    $self->outputs->activated(1);
+    $self->activated(1);
     return;
 }
 
 sub predict {
-    my ($self, $newdata, $stderr) = @_;
+    state $check = compile( Any, Piddle1D, Optional [Any] );
+    my ($self, $newdata, $stderr) = $check->(@_);
+
+    unless ($self->activated) {
+        $self->fit();
+    }
 
     my $pred = Math::LOESS::_swig::prediction->new();
     $pred->{m} = $newdata->dim(0);
@@ -132,6 +150,7 @@ sub predict {
 
     my $d = Math::LOESS::_swig::pdl_to_darray($newdata);
     Math::LOESS::_swig::predict( $d, $self->_obj, $pred );
+    $self->_check_error;
 
     Math::LOESS::_swig::delete_doubleArray($d);
 
@@ -150,10 +169,21 @@ Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally
 
     use Math::LOESS;
 
-    my $loess = Math::LOESS->new(x => $x_piddle, y => $y_piddle);
+    my $loess = Math::LOESS->new(x => $x, y => $y);
 
     $loess->fit();
     my $fitted_values = $loess->outputs->fitted_values;
+
+    my $prediction = $loess->predict($new_data, 1);
+    my $confidence_intervals = $prediction->confidence(0.05);
+    print $confidence_internals->{fit};
+    print $confidence_internals->{upper};
+    print $confidence_internals->{lower};
+
+=head1 CONSTRUCTION
+
+    new(Piddle1D :$x, Piddle1D :$y, Piddle1D :$weights=undef,
+        Num :$span=0.75)
 
 =head1 ATTRIBUTES
 
@@ -177,11 +207,21 @@ Get input y data as a piddle.
 
 Get input weights data as a piddle.
 
+=head2 activated
+
+Returns a true value if the object's C<fit()> method has been called.
+
 =head1 METHODS
 
 =head2 fit
 
     fit()
+
+=head2 predict
+
+    predict(Piddle1D $newdata, Bool $stderr=false)
+
+Returns a L<Math:LOESS::Prediction> object.
 
 =head1 SEE ALSO
 

@@ -20,7 +20,7 @@ sub new {
     );
 
     my $arg = $check->(@_);
-    return bless( { %$arg, activated => 0 }, $class );
+    return bless( $arg, $class );
 }
 
 sub DESTROY {
@@ -31,14 +31,6 @@ sub DESTROY {
 for my $attr (qw(n p family _obj)) {
     no strict 'refs';
     *{$attr} = sub { $_[0]->{$attr} };
-}
-
-sub activated {
-    my ($self, $value) = @_;
-    if (defined $value) {
-        $self->{activated} = $value;
-    }
-    return $self->{activated};
 }
 
 for my $attr (
@@ -96,10 +88,6 @@ method is called.
 =head2 p
 
 =head2 family
-
-=head2 activated
-
-A true value indicates data in the object is valid.
 
 =head2 fitted_values
 
