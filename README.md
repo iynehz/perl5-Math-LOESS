@@ -120,7 +120,7 @@ fit()
 predict(Piddle1D $newdata, Bool $stderr=false)
 ```
 
-Returns a [Math:LOESS::Prediction](Math:LOESS::Prediction) object.
+Returns a [Math::LOESS::Prediction](https://metacpan.org/pod/Math::LOESS::Prediction) object.
 
 ## summary
 

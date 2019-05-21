@@ -285,7 +285,7 @@ Returns a true value if the object's C<fit()> method has been called.
 
     predict(Piddle1D $newdata, Bool $stderr=false)
 
-Returns a L<Math:LOESS::Prediction> object.
+Returns a L<Math::LOESS::Prediction> object.
 
 =head2 summary
 
