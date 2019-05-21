@@ -56,10 +56,10 @@ subtest gas => sub {
     my $loess = Math::LOESS->new( x => $E, y => $NOx );
     ok( $loess, 'Math::LOESS->new()' );
 
-    cmp_ok( $loess->model->span, '==', 0.75, 'default model->span' );
+    is( $loess->model->span, float(0.75), 'default model->span' );
 
     $loess->model->span( 2 / 3 );
-    cmp_ok( $loess->model->span, '==', 2 / 3, 'model->span' );
+    is( $loess->model->span, float( 2 / 3 ), 'model->span' );
 
     ok(!$loess->activated, 'activated is false before fit()');
     $loess->fit();
@@ -87,7 +87,7 @@ subtest gas_null => sub {
     ok( $loess, 'Math::LOESS->new()' );
 
     $loess->model->span(1.0);
-    cmp_ok( $loess->model->span, '==', 1.0, 'model->span' );
+    is( $loess->model->span, float(1.0), 'model->span' );
 
     ok(!$loess->activated, 'activated is false before fit()');
     $loess->fit();
