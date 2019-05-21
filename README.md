@@ -19,6 +19,8 @@ my $loess = Math::LOESS->new(x => $x, y => $y);
 $loess->fit();
 my $fitted_values = $loess->outputs->fitted_values;
 
+print $loess->summary();
+
 my $prediction = $loess->predict($new_data, 1);
 my $confidence_intervals = $prediction->confidence(0.05);
 print $confidence_internals->{fit};
@@ -109,6 +111,14 @@ predict(Piddle1D $newdata, Bool $stderr=false)
 ```
 
 Returns a [Math:LOESS::Prediction](Math:LOESS::Prediction) object.
+
+## summary
+
+```
+summary()
+```
+
+Returns a summary string.
 
 # SEE ALSO
 

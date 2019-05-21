@@ -408,6 +408,7 @@ loess_free_mem(loess *lo)
    loess_kd_tree_free(lo->kd_tree);
 }
 
+/*
 void
 loess_summary(loess *lo)
 {
@@ -419,4 +420,4 @@ loess_summary(loess *lo)
         printf("Residual Scale Estimate: ");
     printf("%.4f\n", lo->outputs->residual_scale);
 }
-
+*/

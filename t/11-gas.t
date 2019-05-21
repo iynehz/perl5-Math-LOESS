@@ -106,6 +106,11 @@ subtest misc => sub {
 
     pdl_is( $pred->values, $predict_values,
         'predict() without explicitly calling fit() works' );
+
+    my $summary = $loess->summary;
+    diag($summary);
+    # test number of lines
+    is(scalar(split(/\n/, $summary)), 4, 'summary()');
 };
 
 done_testing;

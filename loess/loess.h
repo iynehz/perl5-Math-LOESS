@@ -102,7 +102,7 @@ void loess_inputs_free(loess_inputs *inputs);
 void loess_outputs_free(loess_outputs *outputs);
 void loess_kd_tree_free(loess_kd_tree *kd_tree);
 void loess_free_mem(loess *lo);
-void loess_summary(loess *lo);
+// void loess_summary(loess *lo);
 void loess_raw(double *y, double *x, double *weights, double *robust, int *d,
                int*n, double *span, int *degree, int *nonparametric,
                int *drop_square, int *sum_drop_sqr, double *cell, char **surf_stat,

@@ -98,8 +98,9 @@ for my $attr (qw(_obj activated model outputs)) {
     *{$attr} = sub { $_[0]->{$attr} };
 }
 
-sub _inputs_n { $_[0]->_obj->{inputs}{n} }
-sub _inputs_p { $_[0]->_obj->{inputs}{p} }
+sub _inputs   { $_[0]->_obj->{inputs} }
+sub _inputs_n { $_[0]->_inputs->{n} }
+sub _inputs_p { $_[0]->_inputs->{p} }
 
 sub _size {
     my ( $self, $attr ) = @_;
@@ -157,6 +158,29 @@ sub predict {
     return Math::LOESS::Prediction->new( _obj => $pred );
 }
 
+sub summary {
+    my ($self) = @_;
+
+    my $fit_flag = $self->activated;
+    my $s = sprintf(
+        <<"EOT",
+Number of Observations         : %d
+Fit flag                       : %d
+Equivalent Number of Parameters: %.1f
+EOT
+        $self->_inputs->{n}, $fit_flag, $self->outputs->enp
+    );
+
+    if ($fit_flag) {
+        my $rse_fmt =
+          $self->model->family eq 'gaussian'
+          ? "Residual Standard Error        : %.4f"
+          : "Residual Scale Estimate        : %.4f";
+        $s .= sprintf( $rse_fmt, $self->outputs->residual_scale ) . "\n";
+    }
+    return $s;
+}
+
 1;
 
 __END__
@@ -173,6 +197,8 @@ Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally
 
     $loess->fit();
     my $fitted_values = $loess->outputs->fitted_values;
+
+    print $loess->summary();
 
     my $prediction = $loess->predict($new_data, 1);
     my $confidence_intervals = $prediction->confidence(0.05);
@@ -249,6 +275,12 @@ Returns a true value if the object's C<fit()> method has been called.
     predict(Piddle1D $newdata, Bool $stderr=false)
 
 Returns a L<Math:LOESS::Prediction> object.
+
+=head2 summary
+
+    summary()
+
+Returns a summary string.
 
 =head1 SEE ALSO
 
