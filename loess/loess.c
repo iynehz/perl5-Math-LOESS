@@ -52,7 +52,7 @@ condition(char **surface, char *new_stat, char **trace_hat_in)
     }
 }
 
-int
+static int
 comp(const void *d1, const void *d2)
 {
    double *_d1 = (double *)d1;
