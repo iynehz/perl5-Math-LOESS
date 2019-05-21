@@ -1,5 +1,7 @@
 package Math::LOESS::Outputs;
 
+# ABSTRACT: Math::LOESS basic fit outputs
+
 use 5.010;
 use strict;
 use warnings;
@@ -21,11 +23,6 @@ sub new {
 
     my $arg = $check->(@_);
     return bless( $arg, $class );
-}
-
-sub DESTROY {
-    my ($self) = @_;
-    Math::LOESS::_swig::loess_outputs_free( $self->_obj );
 }
 
 for my $attr (qw(n p family _obj)) {

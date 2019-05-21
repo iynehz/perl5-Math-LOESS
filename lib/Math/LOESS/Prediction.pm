@@ -1,5 +1,7 @@
 package Math::LOESS::Prediction;
 
+# ABSTRACT: Math::LOESS prediction and confidence intervals
+
 use 5.010;
 use strict;
 use warnings;

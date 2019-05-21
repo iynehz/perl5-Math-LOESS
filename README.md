@@ -5,6 +5,10 @@
 
 Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally written by Cleveland, et al.
 
+# VERSION
+
+version 0.0000\_01
+
 # SYNOPSIS
 
 ```perl
@@ -28,6 +32,41 @@ print $confidence_internals->{lower};
 new(Piddle1D :$x, Piddle1D :$y, Piddle1D :$weights=undef,
     Num :$span=0.75)
 ```
+
+Arguments:
+
+- $x
+
+    A [PDL](https://metacpan.org/pod/PDL) piddle for x data. 
+
+- $y
+
+    A [PDL](https://metacpan.org/pod/PDL) piddle for y data. 
+
+- $weights
+
+    Optional weights.
+
+- $span
+
+    The parameter controls the degree of smoothing. Default is 0.75.
+
+    For `span` < 1, the neighbourhood used for the fit includes proportion
+    `span` of the points, and these have tricubic weighting (proportional to
+    `(1 - (dist/maxdist)^3)^3)`. For `span` > 1, all points are used, with
+    the "maximum distance" assumed to be `span^(1/p)` times the actual
+    maximum distance for p explanatory variables.
+
+    When provided as a construction parameter, it is like a shortcut of,
+
+    ```perl
+    my $loess = Math::LOESS->new(...); 
+    $loess->model->span($span);
+    ```
+
+# NAME
+
+Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally written by Cleveland, et al.
 
 # ATTRIBUTES
 
@@ -76,3 +115,14 @@ Returns a [Math:LOESS::Prediction](Math:LOESS::Prediction) object.
 [https://en.wikipedia.org/wiki/Local\_regression](https://en.wikipedia.org/wiki/Local_regression)
 
 [PDL](https://metacpan.org/pod/PDL)
+
+# AUTHOR
+
+Stephan Loyd <sloyd@cpan.org>
+
+# COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2019 by Stephan Loyd.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.

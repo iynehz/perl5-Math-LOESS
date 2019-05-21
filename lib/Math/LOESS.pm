@@ -90,7 +90,7 @@ sub new {
 
 sub DESTROY {
     my ($self) = @_;
-    Math::LOESS::_swig::loess_inputs_free( $self->_obj->{inputs} );
+    Math::LOESS::_swig::loess_free_mem( $self->_obj );
 }
 
 for my $attr (qw(_obj activated model outputs)) {
@@ -132,7 +132,7 @@ sub fit {
 
     Math::LOESS::_swig::loess_fit( $self->_obj );
     $self->_check_error;
-    $self->activated(1);
+    $self->{activated} = 1;
     return;
 }
 
@@ -184,6 +184,33 @@ Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally
 
     new(Piddle1D :$x, Piddle1D :$y, Piddle1D :$weights=undef,
         Num :$span=0.75)
+
+Arguments:
+
+=over 4
+
+=item * $x
+
+A L<PDL> piddle for x data. 
+
+=item * $y
+
+A L<PDL> piddle for y data. 
+
+=item * $weights
+
+Optional weights.
+
+=item * $span
+
+=include span@Math::LOESS::Model
+
+When provided as a construction parameter, it is like a shortcut of,
+
+    my $loess = Math::LOESS->new(...); 
+    $loess->model->span($span);
+
+=back
 
 =head1 ATTRIBUTES
 

@@ -61,7 +61,9 @@ subtest gas => sub {
     $loess->model->span( 2 / 3 );
     cmp_ok( $loess->model->span, '==', 2 / 3, 'model->span' );
 
+    ok(!$loess->activated, 'activated is false before fit()');
     $loess->fit();
+    ok($loess->activated, 'activated is true after fit()');
 
     pdl_is( $loess->outputs->fitted_values, $gas, 'outputs->fitted_values' );
 
@@ -87,9 +89,23 @@ subtest gas_null => sub {
     $loess->model->span(1.0);
     cmp_ok( $loess->model->span, '==', 1.0, 'model->span' );
 
+    ok(!$loess->activated, 'activated is false before fit()');
     $loess->fit();
+    ok($loess->activated, 'activated is true after fit()');
+
     pdl_is( $loess->outputs->fitted_values,
         $gas_null, 'outputs->fitted_values' );
+};
+
+subtest misc => sub {
+    my $loess = Math::LOESS->new( x => $E, y => $NOx, span => 2 / 3 );
+    ok( $loess, 'Math::LOESS->new() with span in params' );
+
+    my $pred = $loess->predict($gas_fit_E);
+    ok($loess->activated, 'activated is true after predict()');
+
+    pdl_is( $pred->values, $predict_values,
+        'predict() without explicitly calling fit() works' );
 };
 
 done_testing;
