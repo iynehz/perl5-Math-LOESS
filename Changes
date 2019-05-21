@@ -1,5 +1,8 @@
 Revision history for Math::LOESS
 
-0.0000_01   TBD
+0.0000_02   2019-05-21
+  - Some fixes and improvements.
+
+0.0000_01   2019-05-20
   - First trail release.
 

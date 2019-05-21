@@ -7,7 +7,7 @@ Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally
 
 # VERSION
 
-version 0.0000\_01
+version 0.0000\_02
 
 # SYNOPSIS
 
