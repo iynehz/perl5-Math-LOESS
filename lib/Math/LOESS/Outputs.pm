@@ -9,6 +9,7 @@ use warnings;
 # VERSION
 
 use Math::LOESS::_swig;
+use Scalar::Util qw(weaken);
 use Type::Params qw(compile_named);
 use Types::Standard qw(Int Object Str);
 
@@ -16,16 +17,30 @@ sub new {
     my $class = shift;
     state $check = compile_named(
         _obj   => Object,
+        _loess => Object,
         family => Str,
         n      => Int,
         p      => Int,
     );
 
     my $arg = $check->(@_);
-    return bless( $arg, $class );
+    my $self = bless( $arg, $class );
+    weaken( $self->{_loess} );
+    return $self;
 }
 
-for my $attr (qw(n p family _obj)) {
+sub _obj {
+    my ($self) = @_;
+    unless ($self->{_loess}) {
+        die 'Math::LOESS::Outputs object has been invalidated '
+          . 'because its corresponding loess object has been destroyed. '
+          . 'Make sure the loess object be living when calling '
+          . 'Math::LOESS::Outputs object methods.'
+    }
+    return $self->{_obj};
+}
+
+for my $attr (qw(n p family)) {
     no strict 'refs';
     *{$attr} = sub { $_[0]->{$attr} };
 }

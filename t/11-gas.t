@@ -1,5 +1,6 @@
 #!perl
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -111,6 +112,21 @@ subtest misc => sub {
     diag($summary);
     # test number of lines
     is(scalar(split(/\n/, $summary)), 4, 'summary()');
+};
+
+subtest memory_mgmt => sub {
+
+    my $outputs;
+    {
+        my $loess = Math::LOESS->new( x => $E, y => $NOx, span => 2 / 3 );
+        ok( $loess, 'Math::LOESS->new()' );
+
+        $loess->fit();
+        $outputs = $loess->outputs;
+    }
+
+    like( dies { $outputs->fitted_values },
+        qr/invalidated/, "Math::LOESS::Outputs object got invalidated" );
 };
 
 done_testing;
