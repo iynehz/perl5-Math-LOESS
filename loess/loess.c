@@ -80,7 +80,8 @@ loess_model_setup(loess_model *model) {
         model->drop_square[i] = FALSE;
     }
 
-    model->family = "gaussian";
+    model->family = MALLOC(9 * sizeof(char));
+    strcpy(model->family, "gaussian");
 }
 
 void

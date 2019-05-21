@@ -99,19 +99,43 @@ subtest gas_null => sub {
 };
 
 subtest misc => sub {
-    my $loess = Math::LOESS->new( x => $E, y => $NOx, span => 2 / 3 );
-    ok( $loess, 'Math::LOESS->new() with span in params' );
+    {
+        my $loess = Math::LOESS->new(
+            x      => $E,
+            y      => $NOx,
+            span   => 2 / 3,
+            family => 'gaussian'
+        );
+        ok( $loess, 'Math::LOESS->new() with span and family in params' );
 
-    my $pred = $loess->predict($gas_fit_E);
-    ok($loess->activated, 'activated is true after predict()');
+        my $pred = $loess->predict($gas_fit_E);
+        ok($loess->activated, 'activated is true after predict()');
 
-    pdl_is( $pred->values, $predict_values,
-        'predict() without explicitly calling fit() works' );
+        pdl_is( $pred->values, $predict_values,
+            'predict() without explicitly calling fit() works' );
 
-    my $summary = $loess->summary;
-    diag($summary);
-    # test number of lines
-    is(scalar(split(/\n/, $summary)), 4, 'summary()');
+        my $summary = $loess->summary;
+        diag($summary);
+        # test number of lines
+        is(scalar(split(/\n/, $summary)), 4, 'summary()');
+    }
+
+    {
+        my $loess = Math::LOESS->new(
+            x      => $E,
+            y      => $NOx,
+            span   => 2 / 3,
+            family => 'symmetric'
+        );
+        ok( $loess, 'Math::LOESS->new() with span and family in params' );
+
+        my $pred = $loess->predict($gas_fit_E);
+
+        my $summary = $loess->summary;
+        diag($summary);
+        # test number of lines
+        is(scalar(split(/\n/, $summary)), 4, 'summary()');
+    }
 };
 
 subtest memory_mgmt => sub {

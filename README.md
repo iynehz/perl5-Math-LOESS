@@ -32,7 +32,7 @@ print $confidence_internals->{lower};
 
 ```
 new(Piddle1D :$x, Piddle1D :$y, Piddle1D :$weights=undef,
-    Num :$span=0.75)
+    Num :$span=0.75, Str :$family='gaussian')
 ```
 
 Arguments:
@@ -59,11 +59,21 @@ Arguments:
     the "maximum distance" assumed to be `span^(1/p)` times the actual
     maximum distance for p explanatory variables.
 
-    When provided as a construction parameter, it is like a shortcut of,
+    When provided as a construction parameter, it is like a shortcut for,
 
-    ```perl
-    my $loess = Math::LOESS->new(...); 
+    ```
     $loess->model->span($span);
+    ```
+
+- $family
+
+    If `"gaussian"` fitting is by least-squares, and if `"symmetric"` a
+    re-descending M estimator is used with Tukey's biweight function.
+
+    When provided as a construction parameter, it is like a shortcut for,
+
+    ```
+    $loess->model->family($family);
     ```
 
 # NAME

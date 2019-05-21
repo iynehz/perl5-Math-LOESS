@@ -12,7 +12,7 @@ use PDL::Core qw(ones);
 use PDL::Lite;
 use Math::LOESS::_swig;
 use Type::Params qw(compile compile_named);
-use Types::Standard qw(Any Num Object Optional);
+use Types::Standard qw(Any Num Object Optional Str);
 use Types::PDL qw(Piddle1D);
 
 use Math::LOESS::Model;
@@ -26,12 +26,12 @@ sub new {
         y       => Piddle1D,
         weights => Optional [Piddle1D],
         span    => Optional [ Num->where( sub { $_ > 0 and $_ < 1 } ) ],
-                   { default => 0.75 },
+        family  => Optional [ Str ],
     );
 
     my $arg = $check->(@_);
 
-    my ( $x, $y, $span ) = map { $arg->{$_} } qw(x y span);
+    my ( $x, $y, $span, $family ) = map { $arg->{$_} } qw(x y span family);
     my $n = $y->dim(0);
     my $p = $x->dim(0) / $y->dim(0);
     unless ( int($p) == $p ) {
@@ -74,6 +74,13 @@ sub new {
       ( $x1, $y1, defined $w1 ? $w1 : () );
 
     $self->{model} = Math::LOESS::Model->new( _obj => $self->_obj->{model} );
+    if ( defined $span ) {
+        $self->model->span($span);
+    }
+    if ( defined $family ) {
+        $self->model->family($family);
+    }
+
     $self->{outputs} = Math::LOESS::Outputs->new(
         _obj   => $self->_obj->{outputs},
         _loess => $self,
@@ -81,10 +88,6 @@ sub new {
         p      => $self->_inputs_p,
         family => $self->model->family,
     );
-
-    if (defined $span) {
-        $self->model->span($span);
-    }
 
     return $self;
 }
@@ -210,7 +213,7 @@ Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally
 =head1 CONSTRUCTION
 
     new(Piddle1D :$x, Piddle1D :$y, Piddle1D :$weights=undef,
-        Num :$span=0.75)
+        Num :$span=0.75, Str :$family='gaussian')
 
 Arguments:
 
@@ -232,10 +235,17 @@ Optional weights.
 
 =include span@Math::LOESS::Model
 
-When provided as a construction parameter, it is like a shortcut of,
+When provided as a construction parameter, it is like a shortcut for,
 
-    my $loess = Math::LOESS->new(...); 
     $loess->model->span($span);
+
+=item * $family
+
+=include family@Math::LOESS::Model
+
+When provided as a construction parameter, it is like a shortcut for,
+
+    $loess->model->family($family);
 
 =back
 

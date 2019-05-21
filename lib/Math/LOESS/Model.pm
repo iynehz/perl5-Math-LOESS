@@ -107,8 +107,12 @@ others known to be on a common scale.
 
 =head2 family
 
+=tmpl family
+
 If C<"gaussian"> fitting is by least-squares, and if C<"symmetric"> a
 re-descending M estimator is used with Tukey's biweight function.
+
+=tmpl
 
 =head1 SEE ALSO
 
