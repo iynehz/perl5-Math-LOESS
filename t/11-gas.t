@@ -119,23 +119,6 @@ subtest misc => sub {
         # test number of lines
         is(scalar(split(/\n/, $summary)), 4, 'summary()');
     }
-
-    {
-        my $loess = Math::LOESS->new(
-            x      => $E,
-            y      => $NOx,
-            span   => 2 / 3,
-            family => 'symmetric'
-        );
-        ok( $loess, 'Math::LOESS->new() with span and family in params' );
-
-        my $pred = $loess->predict($gas_fit_E);
-
-        my $summary = $loess->summary;
-        diag($summary);
-        # test number of lines
-        is(scalar(split(/\n/, $summary)), 4, 'summary()');
-    }
 };
 
 subtest memory_mgmt => sub {

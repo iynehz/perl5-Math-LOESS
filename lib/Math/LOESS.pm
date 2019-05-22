@@ -37,6 +37,9 @@ sub new {
     unless ( int($p) == $p ) {
         die "x's length must be same as, or integral times as, that of y";
     }
+    if ($p > 8) {
+        die "Cannot have more than 8 ($p seen) predictors.";
+    }
 
     my $w = $arg->{weights};
     if ( defined $w ) {
@@ -84,8 +87,8 @@ sub new {
     $self->{outputs} = Math::LOESS::Outputs->new(
         _obj   => $self->_obj->{outputs},
         _loess => $self,
-        n      => $self->_inputs_n,
-        p      => $self->_inputs_p,
+        n      => $self->n,
+        p      => $self->p,
         family => $self->model->family,
     );
 
@@ -103,14 +106,14 @@ for my $attr (qw(_obj activated model outputs)) {
 }
 
 sub _inputs   { $_[0]->_obj->{inputs} }
-sub _inputs_n { $_[0]->_inputs->{n} }
-sub _inputs_p { $_[0]->_inputs->{p} }
+sub n { $_[0]->_inputs->{n} }
+sub p { $_[0]->_inputs->{p} }
 
 sub _size {
     my ( $self, $attr ) = @_;
     return $attr eq 'x'
-      ? $self->_inputs_n * $self->_inputs_p
-      : $self->_inputs_n;
+      ? $self->n * $self->p
+      : $self->n;
 }
 
 for my $attr (qw(x y weights)) {
@@ -150,7 +153,11 @@ sub predict {
     }
 
     my $pred = Math::LOESS::_swig::prediction->new();
-    $pred->{m} = $newdata->dim(0);
+    my $m = $newdata->dim(0) / $self->p;
+    unless ( int($m) == $m ) {
+        die "newdata's length must be integral times as that of the p value";
+    }
+    $pred->{m} = $m;
     $pred->{se} = $stderr ? 1 : 0; 
 
     my $d = Math::LOESS::_swig::pdl_to_darray($newdata);
@@ -172,7 +179,7 @@ Number of Observations         : %d
 Fit flag                       : %d
 Equivalent Number of Parameters: %.1f
 EOT
-        $self->_inputs->{n}, $fit_flag, $self->outputs->enp
+        $self->n, $fit_flag, $self->outputs->enp
     );
 
     if ($fit_flag) {
@@ -221,7 +228,10 @@ Arguments:
 
 =item * $x
 
-A L<PDL> piddle for x data. 
+A L<PDL> piddle for x data.
+
+In case of multiple predictors, C<$x> is a glued piddle containing all
+predictors' data. It's possible to have at most 8 predictors.
 
 =item * $y
 
