@@ -7,7 +7,7 @@ Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally
 
 # VERSION
 
-version 0.0000\_02
+version 0.0000\_03
 
 # SYNOPSIS
 
@@ -39,7 +39,10 @@ Arguments:
 
 - $x
 
-    A [PDL](https://metacpan.org/pod/PDL) piddle for x data. 
+    A [PDL](https://metacpan.org/pod/PDL) piddle for x data.
+
+    In case of multiple predictors, `$x` is a glued piddle containing all
+    predictors' data. It's possible to have at most 8 predictors.
 
 - $y
 
@@ -51,13 +54,7 @@ Arguments:
 
 - $span
 
-    The parameter controls the degree of smoothing. Default is 0.75.
-
-    For `span` < 1, the neighbourhood used for the fit includes proportion
-    `span` of the points, and these have tricubic weighting (proportional to
-    `(1 - (dist/maxdist)^3)^3)`. For `span` > 1, all points are used, with
-    the "maximum distance" assumed to be `span^(1/p)` times the actual
-    maximum distance for p explanatory variables.
+    _POD INCLUDE ERROR: Can't load template 'span' from 'Math::LOESS::Model'._
 
     When provided as a construction parameter, it is like a shortcut for,
 
@@ -67,8 +64,7 @@ Arguments:
 
 - $family
 
-    If `"gaussian"` fitting is by least-squares, and if `"symmetric"` a
-    re-descending M estimator is used with Tukey's biweight function.
+    _POD INCLUDE ERROR: Can't load template 'family' from 'Math::LOESS::Model'._
 
     When provided as a construction parameter, it is like a shortcut for,
 
