@@ -87,9 +87,6 @@ sub new {
     $self->{outputs} = Math::LOESS::Outputs->new(
         _obj   => $self->_obj->{outputs},
         _loess => $self,
-        n      => $self->n,
-        p      => $self->p,
-        family => $self->model->family,
     );
 
     return $self;

@@ -18,9 +18,6 @@ sub new {
     state $check = compile_named(
         _obj   => Object,
         _loess => Object,
-        family => Str,
-        n      => Int,
-        p      => Int,
     );
 
     my $arg = $check->(@_);
@@ -29,9 +26,11 @@ sub new {
     return $self;
 }
 
+sub _loess { $_[0]->{_loess} }
+
 sub _obj {
     my ($self) = @_;
-    unless ($self->{_loess}) {
+    unless ($self->_loess) {
         die 'Math::LOESS::Outputs object has been invalidated '
           . 'because its corresponding loess object has been destroyed. '
           . 'Make sure the loess object be living when calling '
@@ -40,10 +39,9 @@ sub _obj {
     return $self->{_obj};
 }
 
-for my $attr (qw(n p family)) {
-    no strict 'refs';
-    *{$attr} = sub { $_[0]->{$attr} };
-}
+sub _family { $_[0]->_loess->model->family }
+sub _n { $_[0]->_loess->n }
+sub _p { $_[0]->_loess->p }
 
 for my $attr (
     qw(
@@ -56,7 +54,7 @@ for my $attr (
     *{$attr} = sub {
         my ($self) = @_;
         return Math::LOESS::_swig::darray_to_pdl( $self->_obj->{$attr},
-            $self->n );
+            $self->_n );
     };
 }
 
@@ -67,7 +65,7 @@ sub pseudovalues {
           . "Use family='symmetric' for robust fitting";
     }
     return Math::LOESS::_swig::darray_to_pdl( $self->_obj->{pseudovalues},
-        $self->n );
+        $self->_n );
 }
 
 for my $attr (
@@ -94,12 +92,6 @@ Instead you get the object from an L<Math::LOESS> object after its C<fit()>
 method is called. 
 
 =head1 ATTRIBUTES
-
-=head2 n
-
-=head2 p
-
-=head2 family
 
 =head2 fitted_values
 
