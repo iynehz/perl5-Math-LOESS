@@ -13,7 +13,7 @@ use PDL::Lite;
 use Math::LOESS::_swig;
 use Type::Params qw(compile compile_named);
 use Types::Standard qw(Any Num Object Optional Str);
-use Types::PDL qw(Piddle1D);
+use Types::PDL qw(Piddle1D Piddle2D);
 
 use Math::LOESS::Model;
 use Math::LOESS::Outputs;
@@ -22,7 +22,7 @@ use Math::LOESS::Prediction;
 sub new {
     my $class = shift;
     state $check = compile_named(
-        x       => Piddle1D,
+        x       => (Piddle1D | Piddle2D),
         y       => Piddle1D,
         weights => Optional [Piddle1D],
         span    => Optional [ Num->where( sub { $_ > 0 and $_ < 1 } ) ],
@@ -32,11 +32,12 @@ sub new {
     my $arg = $check->(@_);
 
     my ( $x, $y, $span, $family ) = map { $arg->{$_} } qw(x y span family);
+
     my $n = $y->dim(0);
-    my $p = $x->dim(0) / $y->dim(0);
-    unless ( int($p) == $p ) {
-        die "x's length must be same as, or integral times as, that of y";
+    if ($x->dim(0) != $n) {
+        die "x and y data must have same length at dim 0";
     }
+    my $p = $x->dim(1);
     if ($p > 8) {
         die "Cannot have more than 8 ($p seen) predictors.";
     }
@@ -44,16 +45,16 @@ sub new {
     my $w = $arg->{weights};
     if ( defined $w ) {
         unless ( $w->dim(0) == $n ) {
-            die "weights's length must be same as that of y";
+            die "weights if given must have same length as y";
         }
     }
     else {
         $w = ones($n);
     }
 
-    my $x1 = Math::LOESS::_swig::pdl_to_darray( $x, $n * $p );
-    my $y1 = Math::LOESS::_swig::pdl_to_darray( $y, $n );
-    my $w1 = defined $w ? Math::LOESS::_swig::pdl_to_darray( $w, $n ) : undef;
+    my $x1 = Math::LOESS::_swig::pdl_to_darray($x);
+    my $y1 = Math::LOESS::_swig::pdl_to_darray($y);
+    my $w1 = defined $w ? Math::LOESS::_swig::pdl_to_darray($w) : undef;
 
     my $loess = Math::LOESS::_swig::loess->new();
     for my $param (qw(inputs model control kd_tree outputs)) {
@@ -109,8 +110,8 @@ sub p { $_[0]->_inputs->{p} }
 sub _size {
     my ( $self, $attr ) = @_;
     return $attr eq 'x'
-      ? $self->n * $self->p
-      : $self->n;
+      ? ($self->n, $self->p)
+      : ($self->n, 1);
 }
 
 for my $attr (qw(x y weights)) {
@@ -142,26 +143,25 @@ sub fit {
 }
 
 sub predict {
-    state $check = compile( Any, Piddle1D, Optional [Any] );
+    state $check = compile( Any, (Piddle1D | Piddle2D), Optional [Any] );
     my ($self, $newdata, $stderr) = $check->(@_);
+
+    unless ( $newdata->dim(1) == $self->p ) {
+        die "newdata's dim 1 must be same as that of x";
+    }
 
     unless ($self->activated) {
         $self->fit();
     }
 
     my $pred = Math::LOESS::_swig::prediction->new();
-    my $m = $newdata->dim(0) / $self->p;
-    unless ( int($m) == $m ) {
-        die "newdata's length must be integral times as that of the p value";
-    }
-    $pred->{m} = $m;
+    $pred->{m} = $newdata->dim(0);
     $pred->{se} = $stderr ? 1 : 0; 
 
     my $d = Math::LOESS::_swig::pdl_to_darray($newdata);
     Math::LOESS::_swig::predict( $d, $self->_obj, $pred );
-    $self->_check_error;
-
     Math::LOESS::_swig::delete_doubleArray($d);
+    $self->_check_error;
 
     return Math::LOESS::Prediction->new( _obj => $pred );
 }
@@ -216,7 +216,7 @@ Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally
 
 =head1 CONSTRUCTION
 
-    new(Piddle1D :$x, Piddle1D :$y, Piddle1D :$weights=undef,
+    new((Piddle1D|Piddle2D) :$x, Piddle1D :$y, Piddle1D :$weights=undef,
         Num :$span=0.75, Str :$family='gaussian')
 
 Arguments:
@@ -225,18 +225,18 @@ Arguments:
 
 =item * $x
 
-A L<PDL> piddle for x data.
-
-In case of multiple predictors, C<$x> is a glued piddle containing all
-predictors' data. It's possible to have at most 8 predictors.
+A C<($n, $p)> piddle for x data, where C<$p> is number of predictors.
+It's possible to have at most 8 predictors.
 
 =item * $y
 
-A L<PDL> piddle for y data. 
+A C<($n, 1)> piddle for y data. 
 
 =item * $weights
 
-Optional weights.
+Optional C<($n, 1)> piddle for weights to be given to individual
+observations.
+By default, an unweighted fit is carried out (all the weights are one).
 
 =item * $span
 
@@ -290,7 +290,7 @@ Returns a true value if the object's C<fit()> method has been called.
 
 =head2 predict
 
-    predict(Piddle1D $newdata, Bool $stderr=false)
+    predict((Piddle1D|Piddle2D) $newdata, Bool $stderr=false)
 
 Returns a L<Math::LOESS::Prediction> object.
 

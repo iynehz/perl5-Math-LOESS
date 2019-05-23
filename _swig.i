@@ -53,24 +53,28 @@
 
 package Math::LOESS::_swig;
 
+use 5.010;
 use strict;
 
 use PDL::Core qw(pdl);
 
 sub darray_to_pdl {
-    my ($a, $n) = @_;
+    my ($a, $n, $p) = @_;
+    $p //= 1;
 
-    my @array = map { doubleArray_getitem($a, $_); } (0 .. $n - 1); 
-    return pdl(\@array);
+    my @array = map { doubleArray_getitem($a, $_); } (0 .. $n * $p - 1); 
+    my $pdl = pdl(\@array);
+    return $p == 1 ? $pdl->flat() : $pdl->reshape($n, $p);
 }
 
 sub pdl_to_darray {
-    my ($p) = @_;
+    my ($pdl) = @_;
 
-    my $n = $p->dim(0);
-    my @array = $p->list;
-    my $a = new_doubleArray($n);
-    for my $i (0 .. $n - 1) {
+    my $n = $pdl->dim(0);
+    my $p = $pdl->dim(1);
+    my @array = $pdl->list;
+    my $a = new_doubleArray($n * $p);
+    for my $i (0 .. $n * $p - 1) {
         doubleArray_setitem($a, $i, $array[$i]);
     }
     return $a;

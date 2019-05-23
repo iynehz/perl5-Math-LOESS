@@ -31,7 +31,7 @@ print $confidence_internals->{lower};
 # CONSTRUCTION
 
 ```
-new(Piddle1D :$x, Piddle1D :$y, Piddle1D :$weights=undef,
+new((Piddle1D|Piddle2D) :$x, Piddle1D :$y, Piddle1D :$weights=undef,
     Num :$span=0.75, Str :$family='gaussian')
 ```
 
@@ -39,18 +39,18 @@ Arguments:
 
 - $x
 
-    A [PDL](https://metacpan.org/pod/PDL) piddle for x data.
-
-    In case of multiple predictors, `$x` is a glued piddle containing all
-    predictors' data. It's possible to have at most 8 predictors.
+    A `($n, $p)` piddle for x data, where `$p` is number of predictors.
+    It's possible to have at most 8 predictors.
 
 - $y
 
-    A [PDL](https://metacpan.org/pod/PDL) piddle for y data. 
+    A `($n, 1)` piddle for y data. 
 
 - $weights
 
-    Optional weights.
+    Optional `($n, 1)` piddle for weights to be given to individual
+    observations.
+    By default, an unweighted fit is carried out (all the weights are one).
 
 - $span
 
@@ -113,7 +113,7 @@ fit()
 ## predict
 
 ```
-predict(Piddle1D $newdata, Bool $stderr=false)
+predict((Piddle1D|Piddle2D) $newdata, Bool $stderr=false)
 ```
 
 Returns a [Math::LOESS::Prediction](https://metacpan.org/pod/Math::LOESS::Prediction) object.
