@@ -82,6 +82,8 @@ Instead you get the object from an L<Math::LOESS> object.
 
 =head2 span
 
+=tmpl span
+
 The parameter controls the degree of smoothing. Default is 0.75.
 
 For C<span> < 1, the neighbourhood used for the fit includes proportion
@@ -89,6 +91,8 @@ C<span> of the points, and these have tricubic weighting (proportional to
 C<(1 - (dist/maxdist)^3)^3)>. For C<span> > 1, all points are used, with
 the "maximum distance" assumed to be C<span^(1/p)> times the actual
 maximum distance for p explanatory variables.
+
+=tmpl
 
 =head2 degree
 
@@ -115,8 +119,12 @@ others known to be on a common scale.
 
 =head2 family
 
+=tmpl family
+
 If C<"gaussian"> fitting is by least-squares, and if C<"symmetric"> a
 re-descending M estimator is used with Tukey's biweight function.
+
+=tmpl
 
 =head1 SEE ALSO
 

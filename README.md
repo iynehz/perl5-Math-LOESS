@@ -7,7 +7,7 @@ Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally
 
 # VERSION
 
-version 0.0000\_03
+version 0.0000\_04
 
 # SYNOPSIS
 
@@ -54,7 +54,13 @@ Arguments:
 
 - $span
 
-    _POD INCLUDE ERROR: Can't load template 'span' from 'Math::LOESS::Model'._
+    The parameter controls the degree of smoothing. Default is 0.75.
+
+    For `span` < 1, the neighbourhood used for the fit includes proportion
+    `span` of the points, and these have tricubic weighting (proportional to
+    `(1 - (dist/maxdist)^3)^3)`. For `span` > 1, all points are used, with
+    the "maximum distance" assumed to be `span^(1/p)` times the actual
+    maximum distance for p explanatory variables.
 
     When provided as a construction parameter, it is like a shortcut for,
 
@@ -64,7 +70,8 @@ Arguments:
 
 - $family
 
-    _POD INCLUDE ERROR: Can't load template 'family' from 'Math::LOESS::Model'._
+    If `"gaussian"` fitting is by least-squares, and if `"symmetric"` a
+    re-descending M estimator is used with Tukey's biweight function.
 
     When provided as a construction parameter, it is like a shortcut for,
 
@@ -124,7 +131,11 @@ Returns a [Math::LOESS::Prediction](https://metacpan.org/pod/Math::LOESS::Predic
 summary()
 ```
 
-Returns a summary string.
+Returns a summary string. For example, 
+
+```
+print $loess->summary();
+```
 
 # SEE ALSO
 

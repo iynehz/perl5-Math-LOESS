@@ -298,7 +298,9 @@ Returns a L<Math::LOESS::Prediction> object.
 
     summary()
 
-Returns a summary string.
+Returns a summary string. For example, 
+
+    print $loess->summary();
 
 =head1 SEE ALSO
 
