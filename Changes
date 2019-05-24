@@ -1,14 +1,5 @@
 Revision history for Math::LOESS
 
-0.0000_04   2019-05-24
-  - Change the way of specifying multiple predictors's data.
-
-0.0000_03   2019-05-22
-  - Really support multiple predictors now.
-
-0.0000_02   2019-05-21
-  - Some fixes and improvements.
-
-0.0000_01   2019-05-20
-  - First trail release.
+0.0001      2019-05-24
+  - First release.
 

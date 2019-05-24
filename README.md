@@ -7,7 +7,7 @@ Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally
 
 # VERSION
 
-version 0.0000\_04
+version 0.0001
 
 # SYNOPSIS
 
@@ -79,6 +79,8 @@ Arguments:
     $loess->model->family($family);
     ```
 
+Bad values in `$x`, `$y`, `$weights` are removed.
+
 # NAME
 
 Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally written by Cleveland, et al.
@@ -124,6 +126,8 @@ predict((Piddle1D|Piddle2D) $newdata, Bool $stderr=false)
 ```
 
 Returns a [Math::LOESS::Prediction](https://metacpan.org/pod/Math::LOESS::Prediction) object.
+
+Bad values in `$newdata` are removed.
 
 ## summary
 
