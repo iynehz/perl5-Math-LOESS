@@ -112,8 +112,7 @@ C<(one_delta ** 2) / two_delta>
 
 Returns the confidence intervals for predicted values, as a hashref of
 C<{ fit =E<gt> $fit, upper =E<gt> $upper, lower =E<gt> $lower }>,
-where C<$fit>, C<$upper>, C<$lower> are piddles of same length as the
-C<values> attr.
+where C<$fit>, C<$upper>, C<$lower> are piddles.
 
 =head1 SEE ALSO
 

@@ -358,4 +358,14 @@ subtest madeup_pred_confinv => sub {
     pdl_is( $ci->{upper}, pdl( 15.221789, 15.123034 ), 'confinv upper' );
 };
 
+subtest badvalues => sub {
+    my $loess = Math::LOESS->new(
+        x    => $one_two->setbadat(1, 0)->setbadat(2, 1),
+        y    => $response->setbadat(0),
+        span => 0.5
+    );
+    is($loess->n, 97);
+    is($loess->p, 2);
+};
+
 done_testing;

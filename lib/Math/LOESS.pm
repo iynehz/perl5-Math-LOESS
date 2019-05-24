@@ -8,6 +8,7 @@ use warnings;
 
 # VERSION
 
+use List::Util qw(reduce);
 use PDL::Core qw(ones);
 use PDL::Lite;
 use Math::LOESS::_swig;
@@ -47,10 +48,12 @@ sub new {
         unless ( $w->dim(0) == $n ) {
             die "weights if given must have same length as y";
         }
+        ($x, $y, $w) = $class->_process_bad_values($x, $y, $w);
     }
     else {
-        $w = ones($n);
+        ($x, $y) = $class->_process_bad_values($x, $y);
     }
+    $n = $y->dim(0);
 
     my $x1 = Math::LOESS::_swig::pdl_to_darray($x);
     my $y1 = Math::LOESS::_swig::pdl_to_darray($y);
@@ -149,6 +152,7 @@ sub predict {
     unless ( $newdata->dim(1) == $self->p ) {
         die "newdata's dim 1 must be same as that of x";
     }
+    ($newdata) = $self->_process_bad_values($newdata);
 
     unless ($self->activated) {
         $self->fit();
@@ -187,6 +191,20 @@ EOT
         $s .= sprintf( $rse_fmt, $self->outputs->residual_scale ) . "\n";
     }
     return $s;
+}
+
+sub _process_bad_values {
+    my ( $class, $p1, @rest ) = @_;    # $p1 can be multi dimensional
+
+    if ( $p1->badflag or ( grep { $_->badflag } @rest ) ) {
+        my $p1_isbad = $p1->isbad;
+        my @p1_isbad =
+          map { $p1_isbad->slice(",($_)") } ( 0 .. $p1->dim(1) - 1 );
+        my $isbad =
+          reduce { ( $a | $b ) } ( @p1_isbad, map { $_->isbad } @rest );
+        return ( map { $_->where( !$isbad ) } ( $p1, @rest ) );
+    }
+    return ( $p1, @rest );
 }
 
 1;
@@ -256,6 +274,8 @@ When provided as a construction parameter, it is like a shortcut for,
 
 =back
 
+Bad values in C<$x>, C<$y>, C<$weights> are removed.
+
 =head1 ATTRIBUTES
 
 =head2 model
@@ -293,6 +313,8 @@ Returns a true value if the object's C<fit()> method has been called.
     predict((Piddle1D|Piddle2D) $newdata, Bool $stderr=false)
 
 Returns a L<Math::LOESS::Prediction> object.
+
+Bad values in C<$newdata> are removed.
 
 =head2 summary
 
