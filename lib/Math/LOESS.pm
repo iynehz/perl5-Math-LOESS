@@ -211,10 +211,6 @@ sub _process_bad_values {
 
 __END__
 
-=head1 NAME
-
-Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally written by Cleveland, et al.
-
 =head1 SYNOPSIS
 
     use Math::LOESS;

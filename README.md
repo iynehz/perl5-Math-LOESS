@@ -81,19 +81,15 @@ Arguments:
 
 Bad values in `$x`, `$y`, `$weights` are removed.
 
-# NAME
-
-Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally written by Cleveland, et al.
-
 # ATTRIBUTES
 
 ## model
 
-Get an [Math::LOESS::Model](https://metacpan.org/pod/Math::LOESS::Model) object.
+Get an [Math::LOESS::Model](https://metacpan.org/pod/Math%3A%3ALOESS%3A%3AModel) object.
 
 ## outputs
 
-Get an [Math::LOESS::Outputs](https://metacpan.org/pod/Math::LOESS::Outputs) object.
+Get an [Math::LOESS::Outputs](https://metacpan.org/pod/Math%3A%3ALOESS%3A%3AOutputs) object.
 
 ## x
 
@@ -125,7 +121,7 @@ fit()
 predict((Piddle1D|Piddle2D) $newdata, Bool $stderr=false)
 ```
 
-Returns a [Math::LOESS::Prediction](https://metacpan.org/pod/Math::LOESS::Prediction) object.
+Returns a [Math::LOESS::Prediction](https://metacpan.org/pod/Math%3A%3ALOESS%3A%3APrediction) object.
 
 Bad values in `$newdata` are removed.
 
