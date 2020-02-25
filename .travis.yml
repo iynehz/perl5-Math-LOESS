@@ -9,7 +9,6 @@ perl:
   - "5.26"
   - "5.20"
   - "5.16"
-  - "5.10"
 sudo: false
 env:
   - PERL_USE_UNSAFE_INC=1
