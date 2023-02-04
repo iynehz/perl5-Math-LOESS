@@ -6,7 +6,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.0000_02'; # TRIAL VERSION
+# VERSION
 
 use Math::LOESS::_swig;
 use Type::Params qw(compile_named);
