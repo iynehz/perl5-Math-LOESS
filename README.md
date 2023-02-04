@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/stphnlyd/perl5-Math-LOESS.svg?branch=master)](https://travis-ci.org/stphnlyd/perl5-Math-LOESS)
-[![AppVeyor Status](https://ci.appveyor.com/api/projects/status/github/stphnlyd/perl5-Math-LOESS?branch=master&svg=true)](https://ci.appveyor.com/project/stphnlyd/perl5-Math-LOESS)
+[![Build Status](https://travis-ci.org/iynehz/perl5-Math-LOESS.svg?branch=master)](https://travis-ci.org/iynehz/perl5-Math-LOESS)
+[![AppVeyor Status](https://ci.appveyor.com/api/projects/status/github/iynehz/perl5-Math-LOESS?branch=master&svg=true)](https://ci.appveyor.com/project/iynehz/perl5-Math-LOESS)
 
 # NAME
 
@@ -7,7 +7,7 @@ Math::LOESS - Perl wrapper of the Locally-Weighted Regression package originally
 
 # VERSION
 
-version 0.0001
+version 0.001000
 
 # SYNOPSIS
 
@@ -149,7 +149,7 @@ Stephan Loyd <sloyd@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2019 by Stephan Loyd.
+This software is copyright (c) 2019-2023 by Stephan Loyd.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

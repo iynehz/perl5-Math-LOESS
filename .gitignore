@@ -41,3 +41,10 @@ inc/
 perltidy.ERR
 perltidy.LOG
 
+# dzil build tarball and dir
+Math-LOESS-*.tar.gz
+Math-LOESS-*/
+
+lib/Math/LOESS/_swig.pm
+loess/_swig_wrap.c
+
